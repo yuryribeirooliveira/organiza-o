@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no,
+               viewport-fit=cover" />
+<title>Agenda Semanal · Tarot 2026</title>
+
+<!-- ═══════════════════════════════════════
+     PWA — iOS (Safari) tela cheia
+═══════════════════════════════════════ -->
+<meta name="apple-mobile-web-app-capable"          content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title"            content="Tarot Agenda" />
+
+<!-- ═══════════════════════════════════════
+     PWA — Android (Chrome)
+═══════════════════════════════════════ -->
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name"       content="Tarot Agenda" />
+<meta name="theme-color"            content="#6741d9" />
+<meta name="description"            content="Gerenciamento de consultas de Tarot — agenda semanal 2026" />
+
+<!-- Fontes -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     VARIÁVEIS DE TEMA  (idêntico ao original)
+  ============================================================ */
+  :root {
+    --bg:        #f5f4f8;
+    --bg2:       #ffffff;
+    --bg3:       #eeedf4;
+    --purple:    #6741d9;
+    --purple2:   #7c5ce8;
+    --purple-lt: #ede9ff;
+    --purple-xlt:#f5f3ff;
+    --text:      #1a1825;
+    --text2:     #4a4560;
+    --text3:     #8a85a0;
+    --border:    #d8d5e8;
+    --ok:        #2da44e;
+    --ok-bg:     #e6f4ea;
+    --warn:      #e67e22;
+    --warn-bg:   #fef3e2;
+    --over:      #c0392b;
+    --over-bg:   #fde8e6;
+    --radius:    14px;
+    --radius-sm: 8px;
+    --shadow:    0 2px 16px rgba(103,65,217,.08);
+    --shadow-md: 0 4px 24px rgba(103,65,217,.14);
+    --transition: .18s ease;
+  }
+
+  /* ============================================================
+     RESET & BASE
+  ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    /* Safe-area para notch/barra do sistema */
+    padding-left:   env(safe-area-inset-left,   0px);
+    padding-right:  env(safe-area-inset-right,  0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ============================================================
+     CABEÇALHO PRINCIPAL
+  ============================================================ */
+  .app-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    /* empurra o conteúdo para baixo do status-bar no iOS */
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 24px 16px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .header-ornament {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--purple);
+    opacity: .7;
+    margin-bottom: 4px;
+  }
+
+  .app-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(18px, 4vw, 26px);
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .app-subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 300;
+    margin-top: 2px;
+    letter-spacing: .5px;
+  }
+
+  /* ============================================================
+     BARRA DE NAVEGAÇÃO SEMANAL
+  ============================================================ */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 14px 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .nav-btn {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--text2);
+    padding: 7px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    touch-action: manipulation;
+  }
+  .nav-btn:hover { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+  .nav-btn.current-week { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .nav-btn.current-week:hover { background: var(--purple2); border-color: var(--purple2); }
+
+  .week-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 200px;
+    text-align: center;
+  }
+
+  /* ============================================================
+     CONTROLE DE LIMITE DIÁRIO
+  ============================================================ */
+  .limit-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 24px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text2);
+    flex-wrap: wrap;
+  }
+  .limit-bar label { font-weight: 500; }
+
+  .limit-input {
+    width: 54px;
+    padding: 5px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text);
+    background: var(--bg2);
+    transition: border-color var(--transition);
+  }
+  .limit-input:focus { outline: none; border-color: var(--purple); }
+
+  /* ============================================================
+     GRID DE DIAS
+  ============================================================ */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
+    padding: 20px 20px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     CARD DE DIA
+  ============================================================ */
+  .day-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition), border-color var(--transition);
+    display: flex;
+    flex-direction: column;
+  }
+  .day-card:hover { box-shadow: var(--shadow-md); }
+  .day-card.today {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 2px var(--purple-lt), var(--shadow-md);
+  }
+
+  /* ── Cabeçalho do card ── */
+  .card-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .day-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .day-date {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 300;
+    margin-top: 1px;
+  }
+
+  .today-badge {
+    display: inline-block;
+    background: var(--purple);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: .5px;
+  }
+
+  /* Barra de progresso de vagas */
+  .slot-bar-wrap { margin-top: 10px; }
+  .slot-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    margin-bottom: 5px;
+  }
+  .slot-label { color: var(--text3); font-weight: 400; }
+  .slot-count { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; }
+  .slot-bar   { height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+  .slot-fill  { height: 100%; border-radius: 99px; transition: width .4s ease, background .3s ease; }
+
+  .status-ok   .slot-count { color: var(--ok); }
+  .status-ok   .slot-fill  { background: var(--ok); }
+  .status-warn .slot-count { color: var(--warn); }
+  .status-warn .slot-fill  { background: var(--warn); }
+  .status-over .slot-count { color: var(--over); }
+  .status-over .slot-fill  { background: var(--over); }
+  .status-ok   .card-header { background: linear-gradient(135deg, var(--ok-bg) 0%, #fff 70%); }
+  .status-warn .card-header { background: linear-gradient(135deg, var(--warn-bg) 0%, #fff 70%); }
+  .status-over .card-header { background: linear-gradient(135deg, var(--over-bg) 0%, #fff 70%); }
+
+  /* Badge de entregues */
+  .done-count-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    background: var(--purple-lt);
+    color: var(--purple);
+    border: 1px solid rgba(103,65,217,.2);
+    margin-top: 6px;
+  }
+
+  /* ── Corpo do card ── */
+  .card-body { padding: 12px 14px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── Form de adicionar ── */
+  .add-form { display: flex; gap: 7px; align-items: stretch; }
+
+  .input-name {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color var(--transition), background var(--transition);
+    min-width: 0;
+  }
+  .input-name:focus { outline: none; border-color: var(--purple); background: var(--bg2); }
+
+  .input-questions {
+    width: 52px;
+    padding: 8px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color var(--transition);
+    -moz-appearance: textfield;
+  }
+  .input-questions::-webkit-outer-spin-button,
+  .input-questions::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .input-questions:focus { outline: none; border-color: var(--purple); background: var(--bg2); }
+
+  .add-btn {
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+  .add-btn:hover  { background: var(--purple2); transform: translateY(-1px); }
+  .add-btn:active { transform: translateY(0); }
+
+  /* ── Lista de clientes ── */
+  .clients-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .client-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    animation: slideIn .2s ease;
+    transition: opacity .2s ease, background var(--transition);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .client-name {
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .q-pill {
+    background: var(--purple-lt);
+    color: var(--purple);
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    flex-shrink: 0;
+    letter-spacing: .3px;
+  }
+
+  .action-btn {
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    transition: background var(--transition), transform var(--transition);
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+  .action-btn:active { transform: scale(.88); }
+
+  .btn-done   { background: var(--ok-bg);   color: var(--ok);   }
+  .btn-done:hover   { background: #c6e8d0; }
+  .btn-reopen { background: #fff8e6;      color: var(--warn); }
+  .btn-reopen:hover { background: #fde9a8; }
+  .btn-remove { background: #fce8e8;      color: var(--over); }
+  .btn-remove:hover { background: #f9c8c8; }
+
+  /* ── Área de concluídas ── */
+  .done-section    { border-top: 1px dashed var(--border); padding-top: 8px; }
+  .done-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .done-title::before { content: '✦'; font-size: 9px; color: var(--purple); opacity: .6; }
+
+  .client-item.done { opacity: .6; background: var(--bg3); }
+  .client-item.done .client-name {
+    text-decoration: line-through;
+    text-decoration-color: var(--text3);
+    color: var(--text3);
+  }
+  .client-item.done .q-pill { background: var(--bg3); color: var(--text3); }
+
+  /* ── Estado vazio ── */
+  .empty-state {
+    text-align: center;
+    padding: 16px 0 8px;
+    color: var(--text3);
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ============================================================
+     RODAPÉ
+  ============================================================ */
+  .app-footer {
+    text-align: center;
+    /* empurra o rodapé acima da barra de navegação do iPhone */
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 2px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  /* ============================================================
+     RESPONSIVIDADE
+  ============================================================ */
+  @media (max-width: 600px) {
+    .week-grid  { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
+    .nav-bar    { gap: 8px; }
+    .week-label { font-size: 12px; min-width: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ CABEÇALHO ═══════════════════════ -->
+<header class="app-header">
+  <p class="header-ornament">✦ ✧ ✦</p>
+  <h1 class="app-title">Agenda de Tarot</h1>
+  <p class="app-subtitle">Gerenciamento de Consultas · 2026</p>
+</header>
+
+<!-- ═══════════════════════ NAVEGAÇÃO ═══════════════════════ -->
+<nav class="nav-bar">
+  <button class="nav-btn" onclick="changeWeek(-1)">← Anterior</button>
+  <span class="week-label" id="week-label"></span>
+  <button class="nav-btn" onclick="changeWeek(1)">Próxima →</button>
+  <button class="nav-btn current-week" onclick="goToCurrentWeek()">Semana Atual</button>
+</nav>
+
+<!-- ═══════════════════════ LIMITE ══════════════════════════ -->
+<div class="limit-bar">
+  <label for="daily-limit">🔮 Limite diário de clientes:</label>
+  <input type="number" id="daily-limit" class="limit-input"
+         min="1" max="99" value="6" oninput="saveLimitAndRender()" />
+  <span style="color:var(--text3);font-size:12px;">consultas/dia</span>
+</div>
+
+<!-- ═══════════════════════ GRID ════════════════════════════ -->
+<main class="week-grid" id="week-grid"></main>
+
+<!-- ═══════════════════════ RODAPÉ ══════════════════════════ -->
+<footer class="app-footer">✦ ✧ ✦</footer>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─── Constantes & estado ───────────────────── */
+const STORAGE_KEY = 'tarot_agenda_2026';
+const LIMIT_KEY   = 'tarot_daily_limit_2026';
+
+const DAYS_PT   = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira',
+                   'Quinta-feira','Sexta-feira','Sábado'];
+const MONTHS_PT = ['jan','fev','mar','abr','mai','jun',
+                   'jul','ago','set','out','nov','dez'];
+
+let currentWeekStart = getThisWeekMonday();
+
+/* ─── Helpers de data ───────────────────────── */
+function getThisWeekMonday() {
+  const d = new Date(); d.setHours(0,0,0,0);
+  const day = d.getDay();
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  return d;
+}
+function dateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function isToday(date) {
+  const t = new Date();
+  return date.getDate()===t.getDate() && date.getMonth()===t.getMonth() && date.getFullYear()===t.getFullYear();
+}
+function formatDateShort(date) {
+  return `${DAYS_PT[date.getDay()].slice(0,3)}, ${date.getDate()} ${MONTHS_PT[date.getMonth()]}`;
+}
+
+/* ─── Persistência ──────────────────────────── */
+function loadData()  { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+function loadLimit() { const v = parseInt(localStorage.getItem(LIMIT_KEY)); return isNaN(v) ? 6 : v; }
+function saveLimit(v){ localStorage.setItem(LIMIT_KEY, String(v)); }
+
+/* ─── Normalização de cliente ───────────────── */
+function norm(c) {
+  if (typeof c === 'string') return { name: c, questions: null, done: false };
+  return { name: c.name ?? '', questions: c.questions ?? null, done: c.done ?? false };
+}
+
+/* ─── Escape HTML ───────────────────────────── */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── Foco pós-render ───────────────────────── */
+function focusName(key) {
+  requestAnimationFrame(() => {
+    const el = document.getElementById(`name-${key}`);
+    if (el) el.focus();
+  });
+}
+
+/* ─── Navegação ─────────────────────────────── */
+function changeWeek(dir) {
+  currentWeekStart = new Date(currentWeekStart);
+  currentWeekStart.setDate(currentWeekStart.getDate() + dir * 7);
+  render();
+}
+function goToCurrentWeek() { currentWeekStart = getThisWeekMonday(); render(); }
+function saveLimitAndRender() {
+  const v = parseInt(document.getElementById('daily-limit').value) || 6;
+  saveLimit(v); render();
+}
+
+/* ─── CRUD ──────────────────────────────────── */
+function addClient(key) {
+  const nEl = document.getElementById(`name-${key}`);
+  const qEl = document.getElementById(`q-${key}`);
+  const name = (nEl?.value || '').trim();
+  if (!name) {
+    if (nEl) { nEl.style.borderColor='var(--over)'; setTimeout(()=>nEl.style.borderColor='',1000); nEl.focus(); }
+    return;
+  }
+  const qty  = qEl && qEl.value ? parseInt(qEl.value) : null;
+  const data = loadData();
+  if (!data[key]) data[key] = [];
+  data[key].push({ name, questions: qty, done: false });
+  saveData(data);
+  render(); focusName(key);
+}
+
+function removeClient(key, idx) {
+  const data = loadData();
+  if (!data[key]) return;
+  data[key].splice(idx, 1);
+  if (!data[key].length) delete data[key];
+  saveData(data); render(); focusName(key);
+}
+
+function toggleDone(key, idx) {
+  const data = loadData();
+  if (!data[key]) return;
+  const c = norm(data[key][idx]);
+  c.done = !c.done;
+  data[key][idx] = c;
+  saveData(data); render(); focusName(key);
+}
+
+function handleKeydown(e, key) { if (e.key === 'Enter') addClient(key); }
+
+/* ─── Renderização principal ────────────────── */
+function render() {
+  const data  = loadData();
+  const limit = loadLimit();
+
+  const limEl = document.getElementById('daily-limit');
+  if (limEl) limEl.value = limit;
+
+  const weekEnd = new Date(currentWeekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  document.getElementById('week-label').textContent =
+    `${formatDateShort(currentWeekStart)} – ${formatDateShort(weekEnd)} · 2026`;
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(currentWeekStart);
+    date.setDate(date.getDate() + i);
+    const key     = dateKey(date);
+    const clients = (data[key] || []).map(norm);
+
+    const active = clients.filter(c => !c.done);
+    const done   = clients.filter(c =>  c.done);
+    const total  = clients.length;
+    const pct    = Math.min((total / limit) * 100, 100);
+
+    let status = 'status-ok';
+    if (total > limit)       status = 'status-over';
+    else if (total >= limit) status = 'status-warn';
+
+    /* HTML dos itens ativos */
+    let activeHTML = '';
+    active.forEach(c => {
+      const realIdx = clients.indexOf(c);
+      const qPill   = c.questions ? `<span class="q-pill">${c.questions}p</span>` : '';
+      activeHTML += `
+        <div class="client-item">
+          <span class="client-name" title="${escHtml(c.name)}">${escHtml(c.name)}</span>
+          ${qPill}
+          <button class="action-btn btn-done"   title="Concluir leitura"
+                  onclick="toggleDone('${key}',${realIdx})">✓</button>
+          <button class="action-btn btn-remove" title="Remover"
+                  onclick="removeClient('${key}',${realIdx})">✕</button>
+        </div>`;
+    });
+
+    /* HTML dos itens concluídos */
+    let doneHTML = '';
+    done.forEach(c => {
+      const realIdx = clients.indexOf(c);
+      const qPill   = c.questions ? `<span class="q-pill">${c.questions}p</span>` : '';
+      doneHTML += `
+        <div class="client-item done">
+          <span class="client-name" title="${escHtml(c.name)}">${escHtml(c.name)}</span>
+          ${qPill}
+          <button class="action-btn btn-reopen" title="Reabrir agendamento"
+                  onclick="toggleDone('${key}',${realIdx})">↩</button>
+          <button class="action-btn btn-remove" title="Remover"
+                  onclick="removeClient('${key}',${realIdx})">✕</button>
+        </div>`;
+    });
+
+    const doneSectionHTML = done.length > 0 ? `
+      <div class="done-section">
+        <div class="done-title">Leituras Entregues (${done.length})</div>
+        <div class="clients-list">${doneHTML}</div>
+      </div>` : '';
+
+    const emptyActive = active.length === 0
+      ? `<p class="empty-state">${total === 0 ? 'Nenhuma consulta agendada' : 'Todas as leituras concluídas 🎉'}</p>`
+      : '';
+
+    const todayBadge = isToday(date) ? `<span class="today-badge">Hoje</span>` : '';
+    const fullDate   = `${date.getDate()} de ${MONTHS_PT[date.getMonth()].charAt(0).toUpperCase()+MONTHS_PT[date.getMonth()].slice(1)} · ${date.getFullYear()}`;
+
+    const card = document.createElement('article');
+    card.className = `day-card ${status}${isToday(date) ? ' today' : ''}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="day-name">${DAYS_PT[date.getDay()]}${todayBadge}</div>
+        <div class="day-date">${fullDate}</div>
+        <div class="slot-bar-wrap">
+          <div class="slot-info">
+            <span class="slot-label">Vagas ocupadas</span>
+            <span class="slot-count">${total} / ${limit}</span>
+          </div>
+          <div class="slot-bar">
+            <div class="slot-fill" style="width:${pct}%"></div>
+          </div>
+        </div>
+        ${done.length > 0 ? `<div class="done-count-badge">✓ ${done.length} entregue${done.length>1?'s':''}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="add-form">
+          <input type="text"   id="name-${key}" class="input-name"
+                 placeholder="Nome da cliente…" maxlength="60"
+                 autocomplete="off" autocorrect="off" spellcheck="false"
+                 onkeydown="handleKeydown(event,'${key}')" />
+          <input type="number" id="q-${key}"    class="input-questions"
+                 value="5" min="1" max="99" title="Qtd. de perguntas" />
+          <button class="add-btn" onclick="addClient('${key}')">+ Add</button>
+        </div>
+        <div class="clients-list">${activeHTML}</div>
+        ${emptyActive}
+        ${doneSectionHTML}
+      </div>`;
+
+    grid.appendChild(card);
+  }
+}
+
+render();
+
+/* ═══════════════════════════════════════════════════════
+   PWA — Manifest + ícone + Service Worker (tudo embutido)
+═══════════════════════════════════════════════════════ */
+(function setupPWA() {
+
+  /* 1 ─ Gera ícone via Canvas ────────────────────────── */
+  function makeIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+
+    /* fundo roxo com gradiente */
+    const g = ctx.createLinearGradient(0, 0, size, size);
+    g.addColorStop(0, '#4c2bc9');
+    g.addColorStop(1, '#7c5ce8');
+    ctx.fillStyle = g;
+
+    /* borda arredondada (padrão iOS) */
+    const r = size * .22;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
+    ctx.quadraticCurveTo(size, 0, size, r);
+    ctx.lineTo(size, size - r);
+    ctx.quadraticCurveTo(size, size, size - r, size);
+    ctx.lineTo(r, size);
+    ctx.quadraticCurveTo(0, size, 0, size - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    /* estrela central */
+    ctx.fillStyle = 'rgba(255,255,255,.92)';
+    ctx.font      = `${Math.round(size * .46)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✦', size / 2, size / 2 + size * .02);
+
+    return c.toDataURL('image/png');
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  /* 2 ─ Apple touch icon (iOS) ───────────────────────── */
+  const appleLink = document.createElement('link');
+  appleLink.rel   = 'apple-touch-icon';
+  appleLink.href  = icon192;
+  document.head.appendChild(appleLink);
+
+  /* 3 ─ Web App Manifest via Blob URL ────────────────── */
+  const manifest = {
+    name:             'Agenda de Tarot 2026',
+    short_name:       'Tarot Agenda',
+    description:      'Gerenciamento de consultas de Tarot — agenda semanal 2026',
+    start_url:        './',
+    scope:            './',
+    display:          'standalone',
+    orientation:      'portrait-primary',
+    background_color: '#f5f4f8',
+    theme_color:      '#6741d9',
+    lang:             'pt-BR',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+
+  try {
+    const blob    = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const mLink   = document.createElement('link');
+    mLink.rel     = 'manifest';
+    mLink.href    = URL.createObjectURL(blob);
+    document.head.appendChild(mLink);
+  } catch (e) { /* silencioso: sem suporte a Blob */ }
+
+  /* 4 ─ Service Worker (cache offline) via Blob ───────── */
+  if ('serviceWorker' in navigator) {
+    const SW = `
+const CACHE = 'tarot-2026-v1';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(ks =>
+      Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    fetch(e.request)
+      .then(r => { const clone = r.clone(); caches.open(CACHE).then(c => c.put(e.request, clone)); return r; })
+      .catch(() => caches.match(e.request))
+  );
+});`;
+    try {
+      const swBlob = new Blob([SW], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+        .catch(() => { /* file:// não suporta SW — normal em uso local */ });
+    } catch (e) {}
+  }
+})();
+</script>
+</body>
+</html>
