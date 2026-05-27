@@ -238,6 +238,16 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
 .burnout-confirm{flex:1;padding:10px;background:var(--purple);border:none;border-radius:var(--radius-sm);font-family:"Poppins",sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:background var(--tr);touch-action:manipulation}
 .burnout-confirm:hover{background:var(--purple2)}
 
+  /* Ajuste perfeito de proporção e alinhamento para a foto do aviso */
+burnout-img {
+  width: 120px;          /* Largura ideal para não estourar a caixinha */
+  height: 120px;         /* Altura idêntica para manter o quadrado perfeito */
+  object-fit: cover;     /* Garante que o rosto preencha o espaço sem distorcer */
+  border-radius: 14px;   /* Arredonda os cantos da imagem para suavizar as bordas */
+  margin: 0 auto 15px auto; /* Centraliza horizontalmente e dá espaço para o título */
+  display: block;        /* Garante o comportamento de bloco para o alinhamento funcionar */
+}
+
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--footer-h) + 12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:#fff;padding:9px 18px;border-radius:50px;font-size:12px;font-weight:500;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;z-index:700;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -404,7 +414,7 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
 
 <div class="burnout-modal" id="burnout-modal">
   <div class="burnout-box">
-    <span class="burnout-emoji">🔮✨</span>
+    <img src="photo_2026-05-27_10-31-21.jpg" alt="Aviso Burnout" class="burnout-img" />
     <div class="burnout-title">Ei, você tem certeza disso?</div>
     <div class="burnout-text">Você pode ganhar um <strong>burnoutinho</strong> assim! Já está acima do seu limite diário. Quer adicionar mesmo assim?</div>
     <div class="burnout-actions">
