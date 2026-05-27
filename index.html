@@ -744,15 +744,33 @@ function showAuthScreen() {
 async function enterApp(user) {
   currentUser = user;
   document.getElementById('auth-screen').classList.add('hidden');
-  // Mostra loading
   const overlay = document.getElementById('loading-overlay');
   overlay.classList.remove('hidden');
+  overlay.style.display = '';
   document.getElementById('loading-text').textContent = 'Carregando agenda…';
+  document.getElementById('loading-retry').classList.remove('show');
   currentWeekStart = getThisWeekMonday();
   document.getElementById('limit-display').textContent = loadLimit();
-  await renderWeek();
+
+  // Timeout de segurança — se demorar mais de 10s, mostra botão de retry
+  const safetyTimeout = setTimeout(() => {
+    document.getElementById('loading-text').textContent = 'Demorando mais que o esperado…';
+    document.getElementById('loading-retry').classList.add('show');
+  }, 10000);
+
+  try {
+    await renderWeek();
+  } catch(e) {
+    console.error('enterApp error:', e);
+    document.getElementById('loading-text').textContent = 'Erro ao carregar. Tente novamente.';
+    document.getElementById('loading-retry').classList.add('show');
+    clearTimeout(safetyTimeout);
+    return;
+  }
+
+  clearTimeout(safetyTimeout);
   overlay.classList.add('hidden');
-  setTimeout(()=>overlay.style.display='none', 400);
+  setTimeout(()=>{ overlay.style.display='none'; }, 400);
 }
 
 /* ═══ SUPABASE DB ═══ */
@@ -1169,22 +1187,52 @@ async function retryInit() {
   }
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // Escuta mudanças de sessão
+  // Escuta mudanças de sessão (login, logout, token refresh)
   sb.auth.onAuthStateChange(async (event, session) => {
-    if(session && session.user) {
-      if(!currentUser) await enterApp(session.user);
-    } else {
+    if(event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      currentUser = null;
+      localCache = {};
+      showAuthScreen();
+      return;
+    }
+    if(event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      if(session && session.user && !currentUser) {
+        await enterApp(session.user);
+      }
+      return;
+    }
+    // Para qualquer outro evento sem sessão válida
+    if(!session || !session.user) {
       currentUser = null;
       showAuthScreen();
     }
   });
 
-  // Verifica se já tem sessão ativa
-  const { data: { session } } = await sb.auth.getSession();
-  if(session && session.user) {
-    await enterApp(session.user);
+  // Verifica sessão existente com timeout de 5s para evitar trava
+  try {
+    const sessionPromise = sb.auth.getSession();
+    const timeoutPromise = new Promise((_,reject) => setTimeout(()=>reject(new Error('timeout')), 5000));
+    const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+
+    if(session && session.user) {
+      // Verifica se o usuário ainda existe no servidor
+      const { data: { user }, error } = await sb.auth.getUser();
+      if(error || !user) {
+        // Sessão inválida ou usuário deletado — limpa e mostra login
+        await sb.auth.signOut();
+        showAuthScreen();
+      } else {
+        await enterApp(user);
+      }
+    } else {
+      showAuthScreen();
+    }
+  } catch(e) {
+    // Timeout ou erro de rede — mostra tela de login
+    console.warn('Init session check failed:', e.message);
+    try { await sb.auth.signOut(); } catch(_) {}
+    showAuthScreen();
   }
-  // Se não tiver sessão, a tela de auth já está visível por padrão
 })();
 </script>
 </body>
