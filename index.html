@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-title" content="Agenda Tarot" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="theme-color" content="#6741d9" />
-<!-- Supabase via CDN com fallback -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,10 +30,62 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
   padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);
   padding-bottom:calc(var(--footer-h) + env(safe-area-inset-bottom,0px));overflow-x:hidden}
 
+/* ═══ TELA DE AUTH ═══ */
+.auth-screen {
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;z-index:9999;
+}
+.auth-screen.hidden{display:none}
+.auth-box {
+  background:var(--bg2);border-radius:var(--radius);
+  padding:32px 28px;width:100%;max-width:400px;
+  box-shadow:var(--shadow-md);
+}
+.auth-ornament{font-size:10px;letter-spacing:6px;color:var(--purple);opacity:.6;text-align:center;margin-bottom:4px}
+.auth-title{font-size:22px;font-weight:800;color:var(--text);text-align:center;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.auth-subtitle{font-size:12px;color:var(--text3);text-align:center;margin-bottom:28px}
+.auth-tabs{display:flex;background:var(--bg3);border-radius:var(--radius-sm);padding:3px;margin-bottom:24px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:6px;
+  font-family:"Poppins",sans-serif;font-size:13px;font-weight:600;color:var(--text3);
+  cursor:pointer;transition:all var(--tr)}
+.auth-tab.active{background:var(--bg2);color:var(--purple);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:11px;font-weight:600;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.auth-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-family:"Poppins",sans-serif;font-size:14px;
+  color:var(--text);background:var(--bg);transition:border-color var(--tr)}
+.auth-field input:focus{outline:none;border-color:var(--purple);background:var(--bg2)}
+.auth-btn{width:100%;padding:13px;background:var(--purple);color:#fff;border:none;
+  border-radius:var(--radius-sm);font-family:"Poppins",sans-serif;font-size:14px;
+  font-weight:700;cursor:pointer;transition:background var(--tr);margin-top:4px;
+  letter-spacing:.3px}
+.auth-btn:hover{background:var(--purple2)}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+.auth-error{background:var(--over-bg);color:var(--over);border:1px solid #f7c1c1;
+  border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;font-weight:500;
+  margin-bottom:14px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--ok-bg);color:var(--ok);border:1px solid #b6dfc4;
+  border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;font-weight:500;
+  margin-bottom:14px;display:none;text-align:center}
+.auth-success.show{display:block}
+
+/* ═══ USER BAR no header ═══ */
+.user-bar{display:flex;align-items:center;gap:8px}
+.user-email{font-size:11px;color:var(--text3);max-width:140px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--text3);
+  border-radius:50px;padding:4px 10px;font-family:"Poppins",sans-serif;
+  font-size:11px;font-weight:500;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.logout-btn:hover{border-color:var(--over);color:var(--over)}
+
 /* LOADING */
 .loading-overlay{position:fixed;inset:0;background:rgba(245,244,248,.95);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:9999;gap:14px;transition:opacity .3s ease}
+  z-index:8888;gap:14px;transition:opacity .3s ease}
 .loading-overlay.hidden{opacity:0;pointer-events:none}
 .loading-spinner{width:44px;height:44px;border:4px solid var(--purple-lt);
   border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
@@ -143,7 +194,6 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
 .app-title{font-size:clamp(14px,3.5vw,19px);font-weight:800;color:var(--text);
   letter-spacing:1.5px;text-transform:uppercase;line-height:1.2}
 .app-subtitle{font-size:10px;color:var(--text3);font-weight:300;letter-spacing:.3px}
-.header-spacer{width:32px;flex-shrink:0}
 
 /* NAV */
 .nav-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 12px 6px}
@@ -249,16 +299,11 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
   cursor:pointer;font-size:12px;transition:background var(--tr),transform var(--tr);
   flex-shrink:0;touch-action:manipulation}
 .action-btn:active{transform:scale(.88)}
-
-/* Estados dos botões — mais largos no mobile para toque fácil */
+.action-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .btn-done{background:var(--ok-bg);color:var(--ok)} .btn-done:hover{background:#c6e8d0}
 .btn-reschedule{background:var(--purple-lt);color:var(--purple)} .btn-reschedule:hover{background:#d8d0f8}
 .btn-reopen{background:#fff8e6;color:var(--warn)} .btn-reopen:hover{background:#fde9a8}
 .btn-remove{background:#fce8e8;color:var(--over)} .btn-remove:hover{background:#f9c8c8}
-
-/* Botão desabilitado enquanto processa */
-.action-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-
 .client-item.done{opacity:.58;background:var(--bg3);border-color:var(--border)}
 .client-item.done .client-name{text-decoration:line-through;text-decoration-color:var(--text3);color:var(--text3)}
 .client-item.done .q-pill{background:var(--bg3);color:var(--text3)}
@@ -351,9 +396,40 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
 </head>
 <body>
 
-<div class="loading-overlay" id="loading-overlay">
+<!-- ═══ TELA DE LOGIN/CADASTRO ═══ -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-box">
+    <p class="auth-ornament">✦ ✧ ✦</p>
+    <h1 class="auth-title">Agenda de Tarot</h1>
+    <p class="auth-subtitle">Faça login para acessar sua agenda</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Cadastrar</button>
+    </div>
+
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-success" id="auth-success"></div>
+
+    <div class="auth-field">
+      <label>E-mail</label>
+      <input type="email" id="auth-email" placeholder="seu@email.com"
+             onkeydown="if(event.key==='Enter')handleAuthSubmit()" autocomplete="email" />
+    </div>
+    <div class="auth-field">
+      <label>Senha</label>
+      <input type="password" id="auth-password" placeholder="Sua senha"
+             onkeydown="if(event.key==='Enter')handleAuthSubmit()" autocomplete="current-password" />
+    </div>
+
+    <button class="auth-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">Entrar</button>
+  </div>
+</div>
+
+<!-- ═══ LOADING ═══ -->
+<div class="loading-overlay hidden" id="loading-overlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loading-text">Conectando…</div>
+  <div class="loading-text" id="loading-text">Carregando agenda…</div>
   <button class="loading-retry" id="loading-retry" onclick="retryInit()">Tentar novamente</button>
 </div>
 
@@ -422,6 +498,9 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
         <button class="sb-shortcut-btn" onclick="applyFilter('tomorrow');closeSidebar()">
           <span class="dot" style="background:var(--ok)"></span>Leituras de Amanhã
         </button>
+        <button class="sb-shortcut-btn" onclick="doLogout()">
+          <span class="dot" style="background:var(--over)"></span>Sair da conta
+        </button>
       </div>
     </div>
   </div>
@@ -434,9 +513,11 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
   <div class="header-center">
     <p class="header-ornament">✦ ✧ ✦</p>
     <h1 class="app-title">Agenda de Tarot</h1>
-    <p class="app-subtitle">Gerenciamento de Consultas</p>
+    <p class="app-subtitle" id="app-subtitle">Gerenciamento de Consultas</p>
   </div>
-  <div class="header-spacer"></div>
+  <div class="user-bar">
+    <button class="logout-btn" onclick="doLogout()" title="Sair">Sair</button>
+  </div>
 </header>
 
 <nav class="nav-bar">
@@ -501,7 +582,7 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
     <div class="burnout-title">Ei, você tem certeza disso?</div>
     <div class="burnout-text">Você pode ganhar um <strong>burnoutinho</strong> assim! Já está acima do seu limite diário. Quer adicionar mesmo assim?</div>
     <div class="burnout-actions">
-      <button class="burnout-cancel"  onclick="closeBurnout(false)">Não, obrigada</button>
+      <button class="burnout-cancel" onclick="closeBurnout(false)">Não, obrigada</button>
       <button class="burnout-confirm" onclick="closeBurnout(true)">Sim, adicionar!</button>
     </div>
   </div>
@@ -512,627 +593,543 @@ body{background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;fon
 <script>
 'use strict';
 
-/* ═══════════════════════════════════════════
-   CONFIGURAÇÃO SUPABASE
-═══════════════════════════════════════════ */
 const SUPABASE_URL  = 'https://dqljiqmoyudhrpigbzuo.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxbGppcW1veXVkaHJwaWdienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NjAxOTQsImV4cCI6MjA5NTMzNjE5NH0.K2ti29o4nS3l1ACKzp4pExeyKWqJvM95quSIlWeEkXo';
 const TABLE = 'consultas_tarot';
 
-/* ═══════════════════════════════════════════
-   ESTADO GLOBAL
-═══════════════════════════════════════════ */
-let sb = null;                 // cliente Supabase (inicializado após lib carregar)
-let localCache = {};           // { "YYYY-MM-DD": [ row, ... ] }
+let sb = null;
+let currentUser = null;
+let localCache = {};
 let currentWeekStart = null;
-let activeFilter     = null;
-let calMonth         = new Date();
-let pendingAdd       = null;
+let activeFilter = null;
+let calMonth = new Date();
+let pendingAdd = null;
 let rescheduleTarget = null;
 let selectedConsultant = null;
-let isProcessing     = false;  // trava global para evitar cliques duplos
+let isProcessing = false;
+let currentAuthTab = 'login';
 
-/* ═══════════════════════════════════════════
-   CONSTANTES DE TEXTO
-═══════════════════════════════════════════ */
 const DAYS_PT    = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const DAYS_ABBR  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MONTHS_PT  = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-const MONTHS_FULL= ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MONTHS_FULL= ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-/* ═══════════════════════════════════════════
-   HELPERS DE DATA
-═══════════════════════════════════════════ */
+/* ═══ HELPERS DATA ═══ */
 function getThisWeekMonday() {
   const d = new Date(); d.setHours(0,0,0,0);
   const day = d.getDay();
-  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  d.setDate(d.getDate() + (day===0 ? -6 : 1-day));
   return d;
 }
 function dateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
 function todayKey()    { return dateKey(new Date()); }
-function tomorrowKey() { const d = new Date(); d.setDate(d.getDate()+1); return dateKey(d); }
+function tomorrowKey() { const d=new Date(); d.setDate(d.getDate()+1); return dateKey(d); }
 function isToday(date) {
-  const t = new Date();
-  return date.getDate()===t.getDate() && date.getMonth()===t.getMonth() && date.getFullYear()===t.getFullYear();
+  const t=new Date();
+  return date.getDate()===t.getDate()&&date.getMonth()===t.getMonth()&&date.getFullYear()===t.getFullYear();
 }
 function isPast(date) {
-  const t = new Date(); t.setHours(0,0,0,0);
-  const d = new Date(date); d.setHours(0,0,0,0);
-  return d < t;
+  const t=new Date(); t.setHours(0,0,0,0);
+  const d=new Date(date); d.setHours(0,0,0,0); return d<t;
 }
-function formatDateShort(date) {
-  return `${DAYS_ABBR[date.getDay()]}, ${date.getDate()} ${MONTHS_PT[date.getMonth()]}`;
-}
+function formatDateShort(date) { return `${DAYS_ABBR[date.getDay()]}, ${date.getDate()} ${MONTHS_PT[date.getMonth()]}`; }
 function getWeekDates() {
-  return Array.from({length:7}, (_,i) => {
-    const d = new Date(currentWeekStart); d.setDate(d.getDate()+i); return d;
-  });
+  return Array.from({length:7},(_,i)=>{ const d=new Date(currentWeekStart); d.setDate(d.getDate()+i); return d; });
 }
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function focusName(key) {
-  requestAnimationFrame(() => { const el = document.getElementById(`name-${key}`); if (el) el.focus(); });
+  requestAnimationFrame(()=>{ const el=document.getElementById(`name-${key}`); if(el)el.focus(); });
 }
 
-/* ═══════════════════════════════════════════
-   SYNC UI
-═══════════════════════════════════════════ */
-let syncTimer = null;
-function showSync(state, msg) {
-  const ind  = document.getElementById('sync-indicator');
-  const dot  = document.getElementById('sync-dot');
-  const text = document.getElementById('sync-text');
+/* ═══ SYNC UI ═══ */
+let syncTimer=null;
+function showSync(state,msg) {
+  const ind=document.getElementById('sync-indicator');
+  const dot=document.getElementById('sync-dot');
+  const text=document.getElementById('sync-text');
   clearTimeout(syncTimer);
-  dot.className  = 'sync-dot' + (state==='syncing' ? ' syncing' : state==='error' ? ' error' : '');
-  text.textContent = msg;
-  ind.classList.add('visible');
-  if (state === 'ok') syncTimer = setTimeout(() => ind.classList.remove('visible'), 2500);
+  dot.className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
+  text.textContent=msg; ind.classList.add('visible');
+  if(state==='ok') syncTimer=setTimeout(()=>ind.classList.remove('visible'),2500);
 }
 
-/* ═══════════════════════════════════════════
-   PERSISTÊNCIA LOCAL (limite + notas)
-═══════════════════════════════════════════ */
-const NOTES_KEY = 'tarot_notes_2026';
-const LIMIT_KEY = 'tarot_daily_limit_2026';
-function loadLimit()   { const v = parseInt(localStorage.getItem(LIMIT_KEY)); return isNaN(v) ? 6 : v; }
-function saveLimit(v)  { localStorage.setItem(LIMIT_KEY, String(v)); }
-function loadNotes()   { try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || {}; } catch { return {}; } }
-function saveNotes2(n) { localStorage.setItem(NOTES_KEY, JSON.stringify(n)); }
+/* ═══ LIMIT / NOTES (localStorage) ═══ */
+const NOTES_KEY='tarot_notes_2026';
+const LIMIT_KEY='tarot_daily_limit_2026';
+function loadLimit()   { const v=parseInt(localStorage.getItem(LIMIT_KEY)); return isNaN(v)?6:v; }
+function saveLimit(v)  { localStorage.setItem(LIMIT_KEY,String(v)); }
+function loadNotes()   { try{return JSON.parse(localStorage.getItem(NOTES_KEY))||{};}catch{return{};} }
+function saveNotes2(n) { localStorage.setItem(NOTES_KEY,JSON.stringify(n)); }
 
-/* ═══════════════════════════════════════════
-   SUPABASE: CARREGAR SEMANA
-═══════════════════════════════════════════ */
-async function loadWeekData(dates) {
-  const keys = dates.map(d => dateKey(d));
-  showSync('syncing', 'Carregando…');
+/* ═══ AUTH UI ═══ */
+function switchAuthTab(tab) {
+  currentAuthTab = tab;
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('auth-submit-btn').textContent = tab==='login' ? 'Entrar' : 'Criar conta';
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+
+function setAuthError(msg) {
+  const el=document.getElementById('auth-error');
+  el.textContent=msg; el.classList.add('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+function setAuthSuccess(msg) {
+  const el=document.getElementById('auth-success');
+  el.textContent=msg; el.classList.add('show');
+  document.getElementById('auth-error').classList.remove('show');
+}
+
+async function handleAuthSubmit() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn      = document.getElementById('auth-submit-btn');
+
+  if (!email || !password) { setAuthError('Preencha e-mail e senha.'); return; }
+  if (password.length < 6) { setAuthError('A senha deve ter pelo menos 6 caracteres.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = currentAuthTab==='login' ? 'Entrando…' : 'Criando conta…';
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+
   try {
-    const { data, error } = await sb
-      .from(TABLE)
-      .select('*')
+    if (currentAuthTab === 'login') {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      // onAuthStateChange vai capturar e chamar enterApp()
+    } else {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      setAuthSuccess('Conta criada! Verifique seu e-mail para confirmar antes de entrar.');
+      btn.disabled = false;
+      btn.textContent = 'Criar conta';
+    }
+  } catch(e) {
+    const msgs = {
+      'Invalid login credentials': 'E-mail ou senha incorretos.',
+      'Email not confirmed': 'Confirme seu e-mail antes de entrar.',
+      'User already registered': 'Este e-mail já está cadastrado.',
+    };
+    setAuthError(msgs[e.message] || e.message);
+    btn.disabled = false;
+    btn.textContent = currentAuthTab==='login' ? 'Entrar' : 'Criar conta';
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  localCache = {};
+  showAuthScreen();
+}
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+  document.getElementById('auth-submit-btn').disabled = false;
+  document.getElementById('auth-submit-btn').textContent = 'Entrar';
+  switchAuthTab('login');
+}
+
+async function enterApp(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').classList.add('hidden');
+  // Mostra loading
+  const overlay = document.getElementById('loading-overlay');
+  overlay.classList.remove('hidden');
+  document.getElementById('loading-text').textContent = 'Carregando agenda…';
+  currentWeekStart = getThisWeekMonday();
+  document.getElementById('limit-display').textContent = loadLimit();
+  await renderWeek();
+  overlay.classList.add('hidden');
+  setTimeout(()=>overlay.style.display='none', 400);
+}
+
+/* ═══ SUPABASE DB ═══ */
+async function loadWeekData(dates) {
+  const keys = dates.map(d=>dateKey(d));
+  showSync('syncing','Carregando…');
+  try {
+    const { data, error } = await sb.from(TABLE).select('*')
       .in('data_agendamento', keys)
-      .order('criado_em', { ascending: true });  // usa coluna criado_em
+      .order('criado_em', { ascending: true });
     if (error) throw error;
-    // Limpa e reconstrói cache apenas para esses dias
-    keys.forEach(k => { localCache[k] = []; });
-    (data || []).forEach(row => {
-      if (!localCache[row.data_agendamento]) localCache[row.data_agendamento] = [];
+    keys.forEach(k=>{ localCache[k]=[]; });
+    (data||[]).forEach(row=>{
+      if(!localCache[row.data_agendamento]) localCache[row.data_agendamento]=[];
       localCache[row.data_agendamento].push(row);
     });
-    showSync('ok', 'Atualizado');
+    showSync('ok','Atualizado');
     return true;
   } catch(e) {
-    showSync('error', 'Erro de conexão');
-    console.error('loadWeekData error:', e);
+    showSync('error','Erro de conexão');
+    console.error('loadWeekData:',e);
     return false;
   }
 }
 
-/* ═══════════════════════════════════════════
-   SUPABASE: ADICIONAR
-═══════════════════════════════════════════ */
 async function dbAdd(key, name, questions) {
-  showSync('syncing', 'Salvando…');
+  showSync('syncing','Salvando…');
   try {
     const { data, error } = await sb.from(TABLE).insert({
       data_agendamento: key,
       nome_cliente:     name,
-      perguntas:        questions || null,
-      concluido:        false
+      perguntas:        questions||null,
+      concluido:        false,
+      user_id:          currentUser.id
     }).select().single();
     if (error) throw error;
-    if (!localCache[key]) localCache[key] = [];
+    if(!localCache[key]) localCache[key]=[];
     localCache[key].push(data);
-    showSync('ok', 'Salvo!');
+    showSync('ok','Salvo!');
     return data;
   } catch(e) {
-    showSync('error', 'Erro ao salvar');
-    console.error('dbAdd error:', e);
+    showSync('error','Erro ao salvar');
+    console.error('dbAdd:',e);
     return null;
   }
 }
 
-/* ═══════════════════════════════════════════
-   SUPABASE: REMOVER
-═══════════════════════════════════════════ */
 async function dbRemove(key, id) {
-  // Converte para número pois o Supabase armazena id como int8
-  const numId = Number(id);
-  showSync('syncing', 'Removendo…');
+  const numId=Number(id);
+  showSync('syncing','Removendo…');
   try {
-    const { error } = await sb.from(TABLE).delete().eq('id', numId);
-    if (error) throw error;
-    // Compara como número para garantir match correto
-    if (localCache[key]) localCache[key] = localCache[key].filter(r => Number(r.id) !== numId);
-    showSync('ok', 'Removido');
+    const { error } = await sb.from(TABLE).delete().eq('id',numId);
+    if(error) throw error;
+    if(localCache[key]) localCache[key]=localCache[key].filter(r=>Number(r.id)!==numId);
+    showSync('ok','Removido');
     return true;
   } catch(e) {
-    showSync('error', 'Erro ao remover');
-    console.error('dbRemove error:', e);
+    showSync('error','Erro ao remover');
+    console.error('dbRemove:',e);
     return false;
   }
 }
 
-/* ═══════════════════════════════════════════
-   SUPABASE: TOGGLE CONCLUÍDO
-   — FIX: atualiza cache ANTES de re-renderizar,
-     e usa o valor atual do registro (não hardcoded)
-═══════════════════════════════════════════ */
 async function dbToggleDone(key, id) {
-  // Converte para número pois o Supabase armazena id como int8
-  const numId = Number(id);
-  // 1. Encontra o registro no cache
-  if (!localCache[key]) return false;
-  const rowIndex = localCache[key].findIndex(r => Number(r.id) === numId);
-  if (rowIndex === -1) { console.error('Row not found in cache:', id); return false; }
-
-  const row = localCache[key][rowIndex];
-  const newDone = !row.concluido;  // inverte o valor REAL, nunca hardcoded
-
-  showSync('syncing', newDone ? 'Concluindo…' : 'Reabrindo…');
+  const numId=Number(id);
+  if(!localCache[key]) return false;
+  const rowIndex=localCache[key].findIndex(r=>Number(r.id)===numId);
+  if(rowIndex===-1) return false;
+  const row=localCache[key][rowIndex];
+  const newDone=!row.concluido;
+  showSync('syncing', newDone?'Concluindo…':'Reabrindo…');
   try {
-    const { error } = await sb.from(TABLE)
-      .update({ concluido: newDone })
-      .eq('id', numId);
-    if (error) throw error;
-
-    // 2. Atualiza cache SOMENTE após sucesso do servidor
-    localCache[key][rowIndex] = { ...row, concluido: newDone };
-    showSync('ok', newDone ? 'Concluído!' : 'Reaberto!');
+    const { error } = await sb.from(TABLE).update({ concluido:newDone }).eq('id',numId);
+    if(error) throw error;
+    localCache[key][rowIndex]={...row, concluido:newDone};
+    showSync('ok', newDone?'Concluído!':'Reaberto!');
     return true;
   } catch(e) {
-    showSync('error', 'Erro ao atualizar');
-    console.error('dbToggleDone error:', e);
+    showSync('error','Erro ao atualizar');
+    console.error('dbToggleDone:',e);
     return false;
   }
 }
 
-/* ═══════════════════════════════════════════
-   SUPABASE: REMARCAR
-   — FIX: atualiza cache SOMENTE após sucesso
-═══════════════════════════════════════════ */
 async function dbReschedule(fromKey, id, toKey) {
-  const numId = Number(id);
-  showSync('syncing', 'Remarcando…');
+  const numId=Number(id);
+  showSync('syncing','Remarcando…');
   try {
-    const { error } = await sb.from(TABLE)
-      .update({ data_agendamento: toKey, concluido: false })
-      .eq('id', numId);
-    if (error) throw error;
-
-    // Atualiza cache SOMENTE após confirmação do servidor
-    if (localCache[fromKey]) {
-      const idx = localCache[fromKey].findIndex(r => Number(r.id) === numId);
-      if (idx !== -1) {
-        const updatedRow = { ...localCache[fromKey][idx], data_agendamento: toKey, concluido: false };
-        localCache[fromKey].splice(idx, 1);
-        if (!localCache[toKey]) localCache[toKey] = [];
-        localCache[toKey].push(updatedRow);
+    const { error } = await sb.from(TABLE).update({ data_agendamento:toKey, concluido:false }).eq('id',numId);
+    if(error) throw error;
+    if(localCache[fromKey]) {
+      const idx=localCache[fromKey].findIndex(r=>Number(r.id)===numId);
+      if(idx!==-1) {
+        const updated={...localCache[fromKey][idx], data_agendamento:toKey, concluido:false};
+        localCache[fromKey].splice(idx,1);
+        if(!localCache[toKey]) localCache[toKey]=[];
+        localCache[toKey].push(updated);
       }
     }
-    showSync('ok', 'Remarcado!');
+    showSync('ok','Remarcado!');
     return true;
   } catch(e) {
-    showSync('error', 'Erro ao remarcar');
-    console.error('dbReschedule error:', e);
+    showSync('error','Erro ao remarcar');
+    console.error('dbReschedule:',e);
     return false;
   }
 }
 
-/* ═══════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════ */
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebar-overlay').classList.add('open');
-  renderMiniCal();
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
+/* ═══ SIDEBAR ═══ */
+function openSidebar()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); renderMiniCal(); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
-/* ═══════════════════════════════════════════
-   MINI CALENDÁRIO
-═══════════════════════════════════════════ */
-function changeCalMonth(dir) {
-  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+dir, 1);
-  renderMiniCal();
-}
+function changeCalMonth(dir) { calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+dir,1); renderMiniCal(); }
 function renderMiniCal() {
-  const year = calMonth.getFullYear(), month = calMonth.getMonth();
-  document.getElementById('mini-cal-title').textContent = `${MONTHS_FULL[month]} ${year}`;
-  const grid = document.getElementById('mini-cal-grid');
-  grid.innerHTML = '';
-  ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'mini-cal-dow'; el.textContent = d; grid.appendChild(el);
+  const year=calMonth.getFullYear(), month=calMonth.getMonth();
+  document.getElementById('mini-cal-title').textContent=`${MONTHS_FULL[month]} ${year}`;
+  const grid=document.getElementById('mini-cal-grid'); grid.innerHTML='';
+  ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d=>{
+    const el=document.createElement('div'); el.className='mini-cal-dow'; el.textContent=d; grid.appendChild(el);
   });
-  const firstDay = new Date(year, month, 1);
-  let startDow = firstDay.getDay();
-  startDow = startDow === 0 ? 6 : startDow - 1;
-  for (let i=0; i<startDow; i++) {
-    const el = document.createElement('div'); el.className = 'mini-cal-day empty'; grid.appendChild(el);
-  }
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const todayObj = new Date(); todayObj.setHours(0,0,0,0);
-  for (let d=1; d<=daysInMonth; d++) {
-    const date = new Date(year, month, d); const key = dateKey(date);
-    const el = document.createElement('div');
-    el.className = 'mini-cal-day' +
-      (date.getTime()===todayObj.getTime() ? ' today' : '') +
-      (localCache[key] && localCache[key].length>0 ? ' has-appt' : '');
-    el.textContent = d;
-    el.onclick = () => {
-      const mon = new Date(date); const dow = mon.getDay();
-      mon.setDate(mon.getDate() - (dow===0 ? 6 : dow-1));
-      currentWeekStart = mon; closeSidebar(); renderWeek();
-    };
+  const firstDay=new Date(year,month,1);
+  let startDow=firstDay.getDay(); startDow=startDow===0?6:startDow-1;
+  for(let i=0;i<startDow;i++){const el=document.createElement('div');el.className='mini-cal-day empty';grid.appendChild(el);}
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayObj=new Date(); todayObj.setHours(0,0,0,0);
+  for(let d=1;d<=daysInMonth;d++){
+    const date=new Date(year,month,d); const key=dateKey(date);
+    const el=document.createElement('div');
+    el.className='mini-cal-day'+(date.getTime()===todayObj.getTime()?' today':'')+(localCache[key]&&localCache[key].length>0?' has-appt':'');
+    el.textContent=d;
+    el.onclick=()=>{ const mon=new Date(date);const dow=mon.getDay();mon.setDate(mon.getDate()-(dow===0?6:dow-1));currentWeekStart=mon;closeSidebar();renderWeek(); };
     grid.appendChild(el);
   }
 }
 
-/* ═══════════════════════════════════════════
-   BUSCA DE CONSULENTE
-═══════════════════════════════════════════ */
+/* ═══ BUSCA ═══ */
 async function searchConsultant(query) {
-  const results = document.getElementById('search-results');
-  const notesWrap = document.getElementById('notes-area-wrap');
-  results.innerHTML = ''; notesWrap.classList.remove('visible'); selectedConsultant = null;
-  if (!query.trim()) return;
+  const results=document.getElementById('search-results');
+  const notesWrap=document.getElementById('notes-area-wrap');
+  results.innerHTML=''; notesWrap.classList.remove('visible'); selectedConsultant=null;
+  if(!query.trim()) return;
   try {
-    const { data } = await sb.from(TABLE)
-      .select('nome_cliente,data_agendamento')
-      .ilike('nome_cliente', `%${query}%`);
-    const found = {};
-    (data||[]).forEach(row => {
-      const n = row.nome_cliente;
-      if (!found[n]) found[n] = { count:0, lastKey: row.data_agendamento };
+    const { data }=await sb.from(TABLE).select('nome_cliente,data_agendamento').ilike('nome_cliente',`%${query}%`);
+    const found={};
+    (data||[]).forEach(row=>{
+      const n=row.nome_cliente;
+      if(!found[n]) found[n]={count:0,lastKey:row.data_agendamento};
       found[n].count++;
-      if (row.data_agendamento > found[n].lastKey) found[n].lastKey = row.data_agendamento;
+      if(row.data_agendamento>found[n].lastKey) found[n].lastKey=row.data_agendamento;
     });
-    const names = Object.keys(found);
-    if (!names.length) {
-      results.innerHTML = `<div style="font-size:11px;color:var(--text3);padding:6px 0">Nenhuma consulente encontrada</div>`;
-      return;
-    }
-    names.forEach(name => {
-      const info = found[name];
-      const div = document.createElement('div');
-      div.className = 'search-result-item';
-      div.innerHTML = `<span>${escHtml(name)}</span><span class="search-result-meta">${info.count}x · ${info.lastKey}</span>`;
-      div.onclick = () => selectConsultant(name);
-      results.appendChild(div);
+    const names=Object.keys(found);
+    if(!names.length){results.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:6px 0">Nenhuma encontrada</div>`;return;}
+    names.forEach(name=>{
+      const info=found[name]; const div=document.createElement('div');
+      div.className='search-result-item';
+      div.innerHTML=`<span>${escHtml(name)}</span><span class="search-result-meta">${info.count}x · ${info.lastKey}</span>`;
+      div.onclick=()=>selectConsultant(name); results.appendChild(div);
     });
-  } catch(e) { console.error(e); }
+  } catch(e){console.error(e);}
 }
 function selectConsultant(name) {
-  selectedConsultant = name;
-  const notes = loadNotes();
-  document.getElementById('notes-client-label').textContent = `Anotações — ${name}`;
-  document.getElementById('notes-textarea').value = notes[name] || '';
+  selectedConsultant=name;
+  const notes=loadNotes();
+  document.getElementById('notes-client-label').textContent=`Anotações — ${name}`;
+  document.getElementById('notes-textarea').value=notes[name]||'';
   document.getElementById('notes-area-wrap').classList.add('visible');
-  document.getElementById('search-results').innerHTML = '';
+  document.getElementById('search-results').innerHTML='';
 }
 function saveNotes() {
-  if (!selectedConsultant) return;
-  const notes = loadNotes(); notes[selectedConsultant] = document.getElementById('notes-textarea').value;
+  if(!selectedConsultant) return;
+  const notes=loadNotes(); notes[selectedConsultant]=document.getElementById('notes-textarea').value;
   saveNotes2(notes); showToast(`Anotações de ${selectedConsultant} salvas ✓`);
 }
 
-/* ═══════════════════════════════════════════
-   STEPPERS
-═══════════════════════════════════════════ */
+/* ═══ STEPPERS ═══ */
 function changeLimit(delta) {
-  let v = loadLimit()+delta; if(v<1)v=1; if(v>99)v=99;
-  saveLimit(v); document.getElementById('limit-display').textContent = v; render();
+  let v=loadLimit()+delta; if(v<1)v=1; if(v>99)v=99;
+  saveLimit(v); document.getElementById('limit-display').textContent=v; render();
 }
-function changeQ(key, delta) {
-  const el = document.getElementById(`qval-${key}`); if (!el) return;
-  let v = parseInt(el.textContent)+delta; if(v<1)v=1; if(v>99)v=99; el.textContent = v;
+function changeQ(key,delta) {
+  const el=document.getElementById(`qval-${key}`); if(!el) return;
+  let v=parseInt(el.textContent)+delta; if(v<1)v=1; if(v>99)v=99; el.textContent=v;
 }
 
-/* ═══════════════════════════════════════════
-   NAVEGAÇÃO
-═══════════════════════════════════════════ */
+/* ═══ NAVEGAÇÃO ═══ */
 async function changeWeek(dir) {
-  currentWeekStart = new Date(currentWeekStart);
-  currentWeekStart.setDate(currentWeekStart.getDate() + dir*7);
+  currentWeekStart=new Date(currentWeekStart);
+  currentWeekStart.setDate(currentWeekStart.getDate()+dir*7);
   await renderWeek();
 }
-async function goToCurrentWeek() { currentWeekStart = getThisWeekMonday(); await renderWeek(); }
+async function goToCurrentWeek() { currentWeekStart=getThisWeekMonday(); await renderWeek(); }
 function applyFilter(type) {
-  activeFilter = type;
-  if (['today','tomorrow','late'].includes(type)) currentWeekStart = getThisWeekMonday();
+  activeFilter=type;
+  if(['today','tomorrow','late'].includes(type)) currentWeekStart=getThisWeekMonday();
   render();
 }
-function clearFilter() { activeFilter = null; render(); }
+function clearFilter() { activeFilter=null; render(); }
 
-/* ═══════════════════════════════════════════
-   ADICIONAR CLIENTE
-═══════════════════════════════════════════ */
+/* ═══ ADD CLIENT ═══ */
 async function addClient(key) {
-  if (isProcessing) return;
-  const nEl = document.getElementById(`name-${key}`);
-  const qEl = document.getElementById(`qval-${key}`);
-  const name = (nEl?.value || '').trim();
-  if (!name) {
-    if (nEl) { nEl.style.borderColor='var(--over)'; setTimeout(()=>nEl.style.borderColor='',1100); nEl.focus(); }
+  if(isProcessing) return;
+  const nEl=document.getElementById(`name-${key}`);
+  const qEl=document.getElementById(`qval-${key}`);
+  const name=(nEl?.value||'').trim();
+  if(!name){
+    if(nEl){nEl.style.borderColor='var(--over)';setTimeout(()=>nEl.style.borderColor='',1100);nEl.focus();}
     return;
   }
-  const qty   = qEl ? parseInt(qEl.textContent) : null;
-  const limit = loadLimit();
-  const total = (localCache[key]||[]).length;
-  if (total >= limit) {
-    pendingAdd = { key, name, questions: qty };
-    document.getElementById('burnout-modal').classList.add('open');
-    return;
-  }
-  await doAddClient(key, name, qty);
+  const qty=qEl?parseInt(qEl.textContent):null;
+  const limit=loadLimit();
+  const total=(localCache[key]||[]).length;
+  if(total>=limit){ pendingAdd={key,name,questions:qty}; document.getElementById('burnout-modal').classList.add('open'); return; }
+  await doAddClient(key,name,qty);
 }
-async function doAddClient(key, name, questions) {
-  isProcessing = true;
-  const row = await dbAdd(key, name, questions);
-  isProcessing = false;
-  if (row) {
-    const nEl = document.getElementById(`name-${key}`);
-    if (nEl) nEl.value = '';
-    render(); focusName(key);
-  }
+async function doAddClient(key,name,questions) {
+  isProcessing=true;
+  const row=await dbAdd(key,name,questions);
+  isProcessing=false;
+  if(row){ const nEl=document.getElementById(`name-${key}`); if(nEl)nEl.value=''; render(); focusName(key); }
 }
 async function closeBurnout(confirm) {
   document.getElementById('burnout-modal').classList.remove('open');
-  if (confirm && pendingAdd) {
-    const { key, name, questions } = pendingAdd;
-    await doAddClient(key, name, questions);
-  }
-  pendingAdd = null;
+  if(confirm&&pendingAdd){ const{key,name,questions}=pendingAdd; await doAddClient(key,name,questions); }
+  pendingAdd=null;
 }
 
-/* ═══════════════════════════════════════════
-   REMOVER
-═══════════════════════════════════════════ */
-async function removeClient(key, id, btnEl) {
-  if (isProcessing) return;
-  if (btnEl) btnEl.disabled = true;
-  isProcessing = true;
-  const ok = await dbRemove(key, id);
-  isProcessing = false;
-  if (ok) { render(); focusName(key); }
-  else if (btnEl) btnEl.disabled = false;
+/* ═══ REMOVE / TOGGLE ═══ */
+async function removeClient(key,id,btnEl) {
+  if(isProcessing) return;
+  if(btnEl) btnEl.disabled=true;
+  isProcessing=true;
+  const ok=await dbRemove(key,id);
+  isProcessing=false;
+  if(ok){render();focusName(key);}
+  else if(btnEl) btnEl.disabled=false;
+}
+async function toggleDone(key,id,btnEl) {
+  if(isProcessing) return;
+  if(btnEl) btnEl.disabled=true;
+  isProcessing=true;
+  const ok=await dbToggleDone(key,id);
+  isProcessing=false;
+  if(ok){render();focusName(key);}
+  else if(btnEl) btnEl.disabled=false;
 }
 
-/* ═══════════════════════════════════════════
-   CONCLUIR / REABRIR
-   — FIX PRINCIPAL: não passa mais true/false hardcoded
-     O valor real é lido do cache dentro de dbToggleDone()
-═══════════════════════════════════════════ */
-async function toggleDone(key, id, btnEl) {
-  if (isProcessing) return;
-  if (btnEl) btnEl.disabled = true;
-  isProcessing = true;
-  const ok = await dbToggleDone(key, id);  // lê estado real do cache internamente
-  isProcessing = false;
-  if (ok) { render(); focusName(key); }
-  else if (btnEl) btnEl.disabled = false;
-}
-
-/* ═══════════════════════════════════════════
-   REMARCAR
-═══════════════════════════════════════════ */
-function openRescheduleModal(fromKey, id, clientName) {
-  rescheduleTarget = { fromKey, id };
-  document.getElementById('reschedule-subtitle').textContent =
-    `Mover "${clientName}" para outro dia desta semana`;
-  const container = document.getElementById('reschedule-days');
-  container.innerHTML = '';
-  for (let i=0; i<7; i++) {
-    const date = new Date(currentWeekStart); date.setDate(date.getDate()+i);
-    const key = dateKey(date);
-    if (key === fromKey) continue;
-    const btn = document.createElement('button');
-    btn.className = 'reschedule-day-btn' + (isToday(date) ? ' today-option' : '');
-    btn.innerHTML = `<span class="rday-name">${DAYS_PT[date.getDay()].split('-')[0]}</span>
-                     <span class="rday-date">${date.getDate()} ${MONTHS_PT[date.getMonth()]}</span>`;
-    btn.onclick = () => doReschedule(key);
+/* ═══ REMARCAR ═══ */
+function openRescheduleModal(fromKey,id,clientName) {
+  rescheduleTarget={fromKey,id};
+  document.getElementById('reschedule-subtitle').textContent=`Mover "${clientName}" para outro dia desta semana`;
+  const container=document.getElementById('reschedule-days'); container.innerHTML='';
+  for(let i=0;i<7;i++){
+    const date=new Date(currentWeekStart); date.setDate(date.getDate()+i);
+    const key=dateKey(date); if(key===fromKey) continue;
+    const btn=document.createElement('button');
+    btn.className='reschedule-day-btn'+(isToday(date)?' today-option':'');
+    btn.innerHTML=`<span class="rday-name">${DAYS_PT[date.getDay()].split('-')[0]}</span><span class="rday-date">${date.getDate()} ${MONTHS_PT[date.getMonth()]}</span>`;
+    btn.onclick=()=>doReschedule(key);
     container.appendChild(btn);
   }
   document.getElementById('reschedule-modal').classList.add('open');
 }
 function closeRescheduleModal(e) {
-  if (e && e.target !== document.getElementById('reschedule-modal')) return;
-  document.getElementById('reschedule-modal').classList.remove('open');
-  rescheduleTarget = null;
+  if(e&&e.target!==document.getElementById('reschedule-modal')) return;
+  document.getElementById('reschedule-modal').classList.remove('open'); rescheduleTarget=null;
 }
 async function doReschedule(toKey) {
-  if (!rescheduleTarget || isProcessing) return;
-  const { fromKey, id } = rescheduleTarget;
-  const row = (localCache[fromKey]||[]).find(r => Number(r.id) === Number(id));
-  const name = row ? row.nome_cliente : '';
-  document.getElementById('reschedule-modal').classList.remove('open');
-  rescheduleTarget = null;
-  isProcessing = true;
-  const ok = await dbReschedule(fromKey, id, toKey);
-  isProcessing = false;
-  if (ok) { render(); showToast(`${name} remarcada ✓`); }
+  if(!rescheduleTarget||isProcessing) return;
+  const{fromKey,id}=rescheduleTarget;
+  const row=(localCache[fromKey]||[]).find(r=>Number(r.id)===Number(id));
+  const name=row?row.nome_cliente:'';
+  document.getElementById('reschedule-modal').classList.remove('open'); rescheduleTarget=null;
+  isProcessing=true;
+  const ok=await dbReschedule(fromKey,id,toKey);
+  isProcessing=false;
+  if(ok){render();showToast(`${name} remarcada ✓`);}
 }
 
-/* ═══════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════ */
+/* ═══ TOAST ═══ */
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
-function handleKeydown(e, key) { if (e.key==='Enter') addClient(key); }
+function handleKeydown(e,key) { if(e.key==='Enter') addClient(key); }
 
-/* ═══════════════════════════════════════════
-   BADGE DE ATRASADAS
-═══════════════════════════════════════════ */
+/* ═══ BADGE ATRASADAS ═══ */
 function countLate() {
-  const today = todayKey(); let count = 0;
-  Object.entries(localCache).forEach(([key, rows]) => {
-    if (key < today) (rows||[]).forEach(r => { if (!r.concluido) count++; });
+  const today=todayKey(); let count=0;
+  Object.entries(localCache).forEach(([key,rows])=>{
+    if(key<today)(rows||[]).forEach(r=>{if(!r.concluido)count++;});
   });
   return count;
 }
 function updateLateBadge() {
-  const n = countLate();
-  const badge = document.getElementById('late-badge');
-  badge.style.display = n>0 ? 'flex' : 'none';
-  badge.textContent   = n>9 ? '9+' : String(n);
+  const n=countLate(); const badge=document.getElementById('late-badge');
+  badge.style.display=n>0?'flex':'none'; badge.textContent=n>9?'9+':String(n);
 }
 
-/* ═══════════════════════════════════════════
-   RENDER (usa apenas localCache — sem chamadas async)
-═══════════════════════════════════════════ */
+/* ═══ RENDER ═══ */
 function render() {
-  const limit = loadLimit();
-  const tkKey = todayKey(), tmKey = tomorrowKey();
-
-  document.getElementById('limit-display').textContent = limit;
-
-  const dates = getWeekDates();
-  document.getElementById('week-label').textContent =
-    `${formatDateShort(dates[0])} – ${formatDateShort(dates[6])}`;
-
-  ['today','late','tomorrow'].forEach(id =>
-    document.getElementById(`tab-${id}`).classList.toggle('active', activeFilter===id));
-
-  const banner = document.getElementById('filter-banner');
-  if (activeFilter) {
+  const limit=loadLimit();
+  const tkKey=todayKey(), tmKey=tomorrowKey();
+  document.getElementById('limit-display').textContent=limit;
+  const dates=getWeekDates();
+  document.getElementById('week-label').textContent=`${formatDateShort(dates[0])} – ${formatDateShort(dates[6])}`;
+  ['today','late','tomorrow'].forEach(id=>document.getElementById(`tab-${id}`).classList.toggle('active',activeFilter===id));
+  const banner=document.getElementById('filter-banner');
+  if(activeFilter){
     banner.classList.add('visible');
-    const labels = { today:'Leituras de Hoje', late:'Leituras Atrasadas', tomorrow:'Leituras de Amanhã' };
-    document.getElementById('filter-banner-text').textContent = `Mostrando: ${labels[activeFilter]}`;
-  } else {
-    banner.classList.remove('visible');
-  }
-
+    const labels={today:'Leituras de Hoje',late:'Leituras Atrasadas',tomorrow:'Leituras de Amanhã'};
+    document.getElementById('filter-banner-text').textContent=`Mostrando: ${labels[activeFilter]}`;
+  } else { banner.classList.remove('visible'); }
   updateLateBadge();
-
-  const grid = document.getElementById('week-grid');
-  grid.innerHTML = '';
-
-  dates.forEach(date => {
-    const key    = dateKey(date);
-    const rows   = localCache[key] || [];
-    const active = rows.filter(r => !r.concluido);
-    const done   = rows.filter(r =>  r.concluido);
-    const total  = rows.length;
-    const pct    = Math.min((total/limit)*100, 100);
-
-    let hideCard = false;
-    if (activeFilter==='today'    && key!==tkKey) hideCard=true;
-    if (activeFilter==='tomorrow' && key!==tmKey) hideCard=true;
-    if (activeFilter==='late' && !(isPast(date) && !isToday(date) && active.length>0)) hideCard=true;
-
-    let status = total>limit ? 'status-over' : total>=limit ? 'status-warn' : 'status-ok';
-
-    const hasPendingAlert = isPast(date) && !isToday(date) && active.length>0;
-    let pendingAlertHTML = '';
-    if (hasPendingAlert) {
-      const names = active.slice(0,2).map(r=>escHtml(r.nome_cliente)).join(', ');
-      const extra = active.length>2 ? ` e mais ${active.length-2}` : '';
-      pendingAlertHTML = `<div class="pending-alert"><span class="pending-alert-icon">😳</span>
-        <span>Ops… você esqueceu de <strong>${names}${extra}</strong>!</span></div>`;
+  const grid=document.getElementById('week-grid'); grid.innerHTML='';
+  dates.forEach(date=>{
+    const key=dateKey(date);
+    const rows=localCache[key]||[];
+    const active=rows.filter(r=>!r.concluido);
+    const done=rows.filter(r=>r.concluido);
+    const total=rows.length;
+    const pct=Math.min((total/limit)*100,100);
+    let hideCard=false;
+    if(activeFilter==='today'&&key!==tkKey) hideCard=true;
+    if(activeFilter==='tomorrow'&&key!==tmKey) hideCard=true;
+    if(activeFilter==='late'&&!(isPast(date)&&!isToday(date)&&active.length>0)) hideCard=true;
+    let status=total>limit?'status-over':total>=limit?'status-warn':'status-ok';
+    const hasPendingAlert=isPast(date)&&!isToday(date)&&active.length>0;
+    let pendingAlertHTML='';
+    if(hasPendingAlert){
+      const names=active.slice(0,2).map(r=>escHtml(r.nome_cliente)).join(', ');
+      const extra=active.length>2?` e mais ${active.length-2}`:'';
+      pendingAlertHTML=`<div class="pending-alert"><span class="pending-alert-icon">😳</span><span>Ops… você esqueceu de <strong>${names}${extra}</strong>!</span></div>`;
     }
-
-    // Renderiza itens ativos
-    // IMPORTANTE: o onclick de toggleDone passa `this` como referência ao botão
-    //             para poder desabilitar durante o processamento
-    let activeHTML = '';
-    active.forEach(r => {
-      const qPill = r.perguntas ? `<span class="q-pill">${r.perguntas}p</span>` : '';
-      activeHTML += `
-        <div class="client-item">
-          <span class="client-name" title="${escHtml(r.nome_cliente)}">${escHtml(r.nome_cliente)}</span>
-          ${qPill}
-          <button class="action-btn btn-reschedule" title="Remarcar"
-            onclick="openRescheduleModal('${key}','${r.id}','${escHtml(r.nome_cliente)}')">↗</button>
-          <button class="action-btn btn-done" title="Concluir"
-            onclick="toggleDone('${key}','${r.id}',this)">✓</button>
-          <button class="action-btn btn-remove" title="Remover"
-            onclick="removeClient('${key}','${r.id}',this)">✕</button>
-        </div>`;
+    let activeHTML='';
+    active.forEach(r=>{
+      const qPill=r.perguntas?`<span class="q-pill">${r.perguntas}p</span>`:'';
+      activeHTML+=`<div class="client-item">
+        <span class="client-name" title="${escHtml(r.nome_cliente)}">${escHtml(r.nome_cliente)}</span>
+        ${qPill}
+        <button class="action-btn btn-reschedule" title="Remarcar" onclick="openRescheduleModal('${key}','${r.id}','${escHtml(r.nome_cliente)}')">↗</button>
+        <button class="action-btn btn-done" title="Concluir" onclick="toggleDone('${key}','${r.id}',this)">✓</button>
+        <button class="action-btn btn-remove" title="Remover" onclick="removeClient('${key}','${r.id}',this)">✕</button>
+      </div>`;
     });
-
-    // Renderiza itens concluídos
-    let doneHTML = '';
-    done.forEach(r => {
-      const qPill = r.perguntas ? `<span class="q-pill">${r.perguntas}p</span>` : '';
-      doneHTML += `
-        <div class="client-item done">
-          <span class="client-name" title="${escHtml(r.nome_cliente)}">${escHtml(r.nome_cliente)}</span>
-          ${qPill}
-          <button class="action-btn btn-reschedule" title="Remarcar"
-            onclick="openRescheduleModal('${key}','${r.id}','${escHtml(r.nome_cliente)}')">↗</button>
-          <button class="action-btn btn-reopen" title="Reabrir"
-            onclick="toggleDone('${key}','${r.id}',this)">↩</button>
-          <button class="action-btn btn-remove" title="Remover"
-            onclick="removeClient('${key}','${r.id}',this)">✕</button>
-        </div>`;
+    let doneHTML='';
+    done.forEach(r=>{
+      const qPill=r.perguntas?`<span class="q-pill">${r.perguntas}p</span>`:'';
+      doneHTML+=`<div class="client-item done">
+        <span class="client-name" title="${escHtml(r.nome_cliente)}">${escHtml(r.nome_cliente)}</span>
+        ${qPill}
+        <button class="action-btn btn-reschedule" title="Remarcar" onclick="openRescheduleModal('${key}','${r.id}','${escHtml(r.nome_cliente)}')">↗</button>
+        <button class="action-btn btn-reopen" title="Reabrir" onclick="toggleDone('${key}','${r.id}',this)">↩</button>
+        <button class="action-btn btn-remove" title="Remover" onclick="removeClient('${key}','${r.id}',this)">✕</button>
+      </div>`;
     });
-
-    const doneSectionHTML = done.length>0 ? `
-      <div class="done-section">
-        <div class="done-title">Leituras Entregues (${done.length})</div>
-        <div class="clients-list">${doneHTML}</div>
-      </div>` : '';
-
-    const emptyActive = active.length===0
-      ? `<p class="empty-state">${total===0 ? 'Nenhuma consulta agendada' : 'Todas as leituras concluídas 🎉'}</p>`
-      : '';
-
-    const todayBadge = isToday(date) ? `<span class="today-badge">Hoje</span>` : '';
-    const fullDate   = `${date.getDate()} de ${MONTHS_PT[date.getMonth()].charAt(0).toUpperCase()}${MONTHS_PT[date.getMonth()].slice(1)} · ${date.getFullYear()}`;
-
-    const card = document.createElement('article');
-    card.className = `day-card ${status}${isToday(date)?' today':''}${hideCard?' hidden-by-filter':''}`;
-    card.innerHTML = `
+    const doneSectionHTML=done.length>0?`<div class="done-section"><div class="done-title">Leituras Entregues (${done.length})</div><div class="clients-list">${doneHTML}</div></div>`:'';
+    const emptyActive=active.length===0?`<p class="empty-state">${total===0?'Nenhuma consulta agendada':'Todas as leituras concluídas 🎉'}</p>`:'';
+    const todayBadge=isToday(date)?`<span class="today-badge">Hoje</span>`:'';
+    const fullDate=`${date.getDate()} de ${MONTHS_PT[date.getMonth()].charAt(0).toUpperCase()}${MONTHS_PT[date.getMonth()].slice(1)} · ${date.getFullYear()}`;
+    const card=document.createElement('article');
+    card.className=`day-card ${status}${isToday(date)?' today':''}${hideCard?' hidden-by-filter':''}`;
+    card.innerHTML=`
       ${pendingAlertHTML}
       <div class="card-header">
         <div class="day-name">${DAYS_PT[date.getDay()]}${todayBadge}</div>
         <div class="day-date">${fullDate}</div>
         <div class="slot-bar-wrap">
-          <div class="slot-info">
-            <span class="slot-label">Vagas ocupadas</span>
-            <span class="slot-count">${total} / ${limit}</span>
-          </div>
+          <div class="slot-info"><span class="slot-label">Vagas ocupadas</span><span class="slot-count">${total} / ${limit}</span></div>
           <div class="slot-bar"><div class="slot-fill" style="width:${pct}%"></div></div>
         </div>
-        ${done.length>0 ? `<div class="done-count-badge">◐ ${done.length} entregue${done.length>1?'s':''}</div>` : ''}
+        ${done.length>0?`<div class="done-count-badge">◐ ${done.length} entregue${done.length>1?'s':''}</div>`:''}
       </div>
       <div class="card-body">
         <div class="add-form">
-          <input type="text" id="name-${key}" class="input-name"
-                 placeholder="Nome da cliente…" maxlength="60"
-                 autocomplete="off" autocorrect="off" spellcheck="false"
-                 onkeydown="handleKeydown(event,'${key}')" />
+          <input type="text" id="name-${key}" class="input-name" placeholder="Nome da cliente…" maxlength="60"
+                 autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKeydown(event,'${key}')" />
           <div class="q-stepper">
             <button class="stepper-btn" onclick="changeQ('${key}',-1)">−</button>
             <span class="stepper-val" id="qval-${key}">5</span>
@@ -1148,85 +1145,47 @@ function render() {
   });
 }
 
-/* ═══════════════════════════════════════════
-   RENDER SEMANAL (carrega Supabase + renderiza)
-═══════════════════════════════════════════ */
 async function renderWeek() {
-  const dates = getWeekDates();
+  const dates=getWeekDates();
   await loadWeekData(dates);
   render();
 }
 
-/* ═══════════════════════════════════════════
-   INICIALIZAÇÃO com retry automático
-═══════════════════════════════════════════ */
 async function retryInit() {
   document.getElementById('loading-retry').classList.remove('show');
-  document.getElementById('loading-text').textContent = 'Reconectando…';
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  document.getElementById('loading-overlay').style.display = '';
-  await init();
-}
-
-async function init() {
-  const overlay    = document.getElementById('loading-overlay');
-  const loadText   = document.getElementById('loading-text');
-  const retryBtn   = document.getElementById('loading-retry');
-
-  // Inicializa variáveis de estado
-  currentWeekStart = getThisWeekMonday();
-  document.getElementById('limit-display').textContent = loadLimit();
-
-  // Verifica se a lib Supabase carregou
-  loadText.textContent = 'Verificando conexão…';
-  if (typeof supabase === 'undefined') {
-    loadText.textContent = 'Biblioteca não carregou. Verifique a internet.';
-    retryBtn.classList.add('show');
-    return;
-  }
-
-  // Cria o cliente Supabase
-  try {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-  } catch(e) {
-    loadText.textContent = 'Erro ao inicializar. Tente novamente.';
-    retryBtn.classList.add('show');
-    return;
-  }
-
-  // Carrega dados da semana com até 2 tentativas
-  loadText.textContent = 'Carregando agenda…';
-  let ok = await renderWeek();
-
-  // Se falhou, tenta mais uma vez após 2s
-  if (!ok) {
-    loadText.textContent = 'Tentando novamente…';
-    await new Promise(r => setTimeout(r, 2000));
-    ok = await renderWeek();
-  }
-
-  if (!ok) {
-    loadText.textContent = 'Não foi possível conectar.';
-    retryBtn.classList.add('show');
-    // Mostra o app mesmo sem dados (modo offline)
-    setTimeout(() => {
-      overlay.classList.add('hidden');
-      setTimeout(() => overlay.style.display='none', 400);
-    }, 1000);
-    return;
-  }
-
-  // Sucesso — esconde overlay
+  document.getElementById('loading-text').textContent='Reconectando…';
+  const overlay=document.getElementById('loading-overlay');
+  overlay.classList.remove('hidden'); overlay.style.display='';
+  await renderWeek();
   overlay.classList.add('hidden');
-  setTimeout(() => overlay.style.display='none', 400);
+  setTimeout(()=>overlay.style.display='none',400);
 }
 
-// Aguarda o DOM estar pronto e inicia
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+/* ═══ INIT ═══ */
+(async function init() {
+  if(typeof supabase==='undefined') {
+    alert('Erro: biblioteca Supabase não carregou. Verifique sua conexão.');
+    return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // Escuta mudanças de sessão
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(session && session.user) {
+      if(!currentUser) await enterApp(session.user);
+    } else {
+      currentUser = null;
+      showAuthScreen();
+    }
+  });
+
+  // Verifica se já tem sessão ativa
+  const { data: { session } } = await sb.auth.getSession();
+  if(session && session.user) {
+    await enterApp(session.user);
+  }
+  // Se não tiver sessão, a tela de auth já está visível por padrão
+})();
 </script>
 </body>
 </html>
