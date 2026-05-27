@@ -660,11 +660,14 @@ async function dbAdd(key, name, questions) {
    SUPABASE: REMOVER
 ═══════════════════════════════════════════ */
 async function dbRemove(key, id) {
+  // Converte para número pois o Supabase armazena id como int8
+  const numId = Number(id);
   showSync('syncing', 'Removendo…');
   try {
-    const { error } = await sb.from(TABLE).delete().eq('id', id);
+    const { error } = await sb.from(TABLE).delete().eq('id', numId);
     if (error) throw error;
-    if (localCache[key]) localCache[key] = localCache[key].filter(r => r.id !== id);
+    // Compara como número para garantir match correto
+    if (localCache[key]) localCache[key] = localCache[key].filter(r => Number(r.id) !== numId);
     showSync('ok', 'Removido');
     return true;
   } catch(e) {
@@ -680,9 +683,11 @@ async function dbRemove(key, id) {
      e usa o valor atual do registro (não hardcoded)
 ═══════════════════════════════════════════ */
 async function dbToggleDone(key, id) {
+  // Converte para número pois o Supabase armazena id como int8
+  const numId = Number(id);
   // 1. Encontra o registro no cache
   if (!localCache[key]) return false;
-  const rowIndex = localCache[key].findIndex(r => String(r.id) === String(id));
+  const rowIndex = localCache[key].findIndex(r => Number(r.id) === numId);
   if (rowIndex === -1) { console.error('Row not found in cache:', id); return false; }
 
   const row = localCache[key][rowIndex];
@@ -692,7 +697,7 @@ async function dbToggleDone(key, id) {
   try {
     const { error } = await sb.from(TABLE)
       .update({ concluido: newDone })
-      .eq('id', id);
+      .eq('id', numId);
     if (error) throw error;
 
     // 2. Atualiza cache SOMENTE após sucesso do servidor
@@ -711,16 +716,17 @@ async function dbToggleDone(key, id) {
    — FIX: atualiza cache SOMENTE após sucesso
 ═══════════════════════════════════════════ */
 async function dbReschedule(fromKey, id, toKey) {
+  const numId = Number(id);
   showSync('syncing', 'Remarcando…');
   try {
     const { error } = await sb.from(TABLE)
       .update({ data_agendamento: toKey, concluido: false })
-      .eq('id', id);
+      .eq('id', numId);
     if (error) throw error;
 
     // Atualiza cache SOMENTE após confirmação do servidor
     if (localCache[fromKey]) {
-      const idx = localCache[fromKey].findIndex(r => String(r.id) === String(id));
+      const idx = localCache[fromKey].findIndex(r => Number(r.id) === numId);
       if (idx !== -1) {
         const updatedRow = { ...localCache[fromKey][idx], data_agendamento: toKey, concluido: false };
         localCache[fromKey].splice(idx, 1);
@@ -965,7 +971,7 @@ function closeRescheduleModal(e) {
 async function doReschedule(toKey) {
   if (!rescheduleTarget || isProcessing) return;
   const { fromKey, id } = rescheduleTarget;
-  const row = (localCache[fromKey]||[]).find(r => String(r.id) === String(id));
+  const row = (localCache[fromKey]||[]).find(r => Number(r.id) === Number(id));
   const name = row ? row.nome_cliente : '';
   document.getElementById('reschedule-modal').classList.remove('open');
   rescheduleTarget = null;
